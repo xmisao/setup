@@ -192,13 +192,75 @@ fi
 create_file "$HOME/.bashrc" ""
 
 content=$(cat << 'EOS'
-export PS1="\w\ $ "
 export EDITOR=vim
 export BUNDLE_PATH=$HOME/.bundle
 EOS
 )
 create_file "$HOME/.bashrc_0" "$content" "replace"
 append_to "$HOME/.bashrc" 'source $HOME/.bashrc_0'
+
+content=$(cat << 'EOS'
+function colorful () {
+  front_color=$1
+  back_color=$2
+
+  case "$front_color" in
+    'black' ) f='0;30' ;;
+    'red' ) f='0;31' ;;
+    'green' ) f='0;32' ;;
+    'yellow' ) f='0;33' ;;
+    'blue' ) f='0;34' ;;
+    'magenta' ) f='0;35' ;;
+    'cyan' ) f='0;36' ;;
+    'white' ) f='0;37' ;;
+    'bold_black' ) f='1;30' ;;
+    'bold_red' ) f='1;31' ;;
+    'bold_green' ) f='1;32' ;;
+    'bold_yellow' ) f='1;33' ;;
+    'bold_blue' ) f='1;34' ;;
+    'bold_magenta' ) f='1;35' ;;
+    'bold_cyan' ) f='1;36' ;;
+    'bold_white' ) f='1;37' ;;
+  esac
+
+  if [ -z $back_color ];then
+    echo -en "\033[${f}m"
+  else
+    case "$back_color" in
+      'black' ) b=40 ;;
+      'red' ) b=41 ;;
+      'green' ) b=42 ;;
+      'yellow' ) b=43 ;;
+      'blue' ) b=44 ;;
+      'magenta' ) b=45 ;;
+      'cyan' ) b=46 ;;
+      'white' ) b=47 ;;
+    esac
+
+    echo -en "\033[${f};${b}m"
+  fi
+}
+
+break_color="\033[0;39m"
+
+# Config *********************************
+disable_host_name=
+host_name=$(hostname)
+
+host_name_color=$(colorful 'black' 'white')
+dir_color=$(colorful 'white')
+dollar_color=$(colorful 'bold_white')
+# ****************************************
+
+if [ -z $disable_host_name ]; then
+  export PS1="${host_name_color}[${host_name}]${break_color} ${dir_color}\w${break_color} ${dollar_color}\$${break_color} "
+else
+  export PS1="${dir_color}\w${break_color} ${dollar_color}\$${break_color} "
+fi
+EOS
+)
+create_file "$HOME/.bashrc_prompt" "$content"
+append_to "$HOME/.bashrc" 'source $HOME/.bashrc_prompt'
 
 #################### GNU Screen settings ####################
 
