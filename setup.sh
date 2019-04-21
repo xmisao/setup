@@ -144,6 +144,8 @@ Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
 Plug 'maralla/completor.vim'
 Plug 'vim-scripts/wombat256.vim'
+Plug 'junegunn/fzf', { 'dir': '~/fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 call plug#end()
 EOS
@@ -165,6 +167,9 @@ set t_Co=256
 
 " Colorscheme
 colorscheme wombat256mod
+
+" Plugins fzf
+nmap fff :FZF<CR>
 EOS
 )
 create_file "$HOME/.vimrc_3" "$content" "replace"
@@ -194,10 +199,86 @@ create_file "$HOME/.bashrc" ""
 content=$(cat << 'EOS'
 export EDITOR=vim
 export BUNDLE_PATH=$HOME/.bundle
+
+alias ls="ls --color"
+alias grep="grep --color"
+alias b="bundle"
+alias g="git"
+alias less="less -R"
 EOS
 )
 create_file "$HOME/.bashrc_0" "$content" "replace"
 append_to "$HOME/.bashrc" 'source $HOME/.bashrc_0'
+
+content=$(cat << 'EOS'
+# FIXME Support multi screen process
+
+# Screen Change Directory
+function scd () {
+  screen -X "eval" "chdir $PWD"
+  echo "Set screen dir to $PWD"
+}
+
+# Screen New Window in current directory
+function snw () {
+  screen_pid=$(ps f | grep screen | grep -v grep | awk '{print $1}')
+  screen_current_dir=$(readlink -f /proc/$screen_pid/cwd)
+  screen -X "eval" "chdir $PWD" screen
+  screen -X "eval" "chdir $screen_current_dir"
+  echo "Open new window $PWD"
+}
+EOS
+)
+create_file "$HOME/.bashrc_1" "$content" "replace"
+append_to "$HOME/.bashrc" 'source $HOME/.bashrc_1'
+
+content=$(cat << 'EOS'
+function super_open () {
+  path="$1"
+
+  if [ -f "$path" ]; then
+    "$EDITOR" "$path"
+  fi
+
+  if [ -d "$path" ]; then
+    cd "$path"
+  fi
+
+  echo $path
+}
+
+function H () {
+  dir=$(cd "$HOME"; find . -maxdepth 1 -type d | fzf)
+
+  echo
+
+  if [ -z "$dir" ]; then
+    :
+  else
+    super_open "$HOME/$dir"
+  fi
+}
+
+function F () {
+  path=$(find . -maxdepth 4 \
+    -type d -name .bunlde -prune -o \
+    -type d -name bundle -prune -o \
+    -type d -name .vim -prune -o \
+    -type d -name .git -prune -o \
+    -print | fzf)
+
+  echo
+
+  if [ -z "$path" ]; then
+    :
+  else
+    super_open "$path"
+  fi
+}
+EOS
+)
+create_file "$HOME/.bashrc_2" "$content" "replace"
+append_to "$HOME/.bashrc" 'source $HOME/.bashrc_2'
 
 content=$(cat << 'EOS'
 function colorful () {
@@ -261,6 +342,9 @@ EOS
 )
 create_file "$HOME/.bashrc_prompt" "$content"
 append_to "$HOME/.bashrc" 'source $HOME/.bashrc_prompt'
+
+create_file "$HOME/.bashrc_ext" ""
+append_to "$HOME/.bashrc" 'source $HOME/.bashrc_ext'
 
 #################### GNU Screen settings ####################
 
