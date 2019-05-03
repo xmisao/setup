@@ -146,6 +146,7 @@ Plug 'maralla/completor.vim'
 Plug 'vim-scripts/wombat256.vim'
 Plug 'junegunn/fzf', { 'dir': '~/fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'posva/vim-vue'
 
 call plug#end()
 EOS
