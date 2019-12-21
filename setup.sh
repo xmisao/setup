@@ -148,6 +148,7 @@ Plug 'junegunn/fzf', { 'dir': '~/fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'posva/vim-vue'
 Plug 'ap/vim-css-color'
+Plug 'tpope/vim-fugitive'
 
 call plug#end()
 EOS
@@ -171,7 +172,10 @@ set t_Co=256
 colorscheme wombat256mod
 
 " Plugins fzf
-nmap fff :FZF<CR>
+nmap ff :FZF<CR>
+
+" Auto QuickFix when grep
+autocmd QuickFixCmdPost *grep* cwindow
 EOS
 )
 create_file "$HOME/.vimrc_3" "$content" "replace"
