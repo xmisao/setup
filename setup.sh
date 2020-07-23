@@ -103,6 +103,7 @@ set ignorecase
 set expandtab
 set ambiwidth=double
 set backspace=indent,eol,start
+set hlsearch
 syntax on
 
 " Temp file location settings
@@ -142,7 +143,7 @@ Plug 'thinca/vim-quickrun'
 Plug 'vim-scripts/GrepHere'
 Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
-Plug 'maralla/completor.vim'
+Plug 'maralla/completor.vim', { 'commit': 'abed3d3720d7186920f2e28d81e43749104e80bb' }
 Plug 'vim-scripts/wombat256.vim'
 Plug 'junegunn/fzf', { 'dir': '~/fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -173,6 +174,8 @@ colorscheme wombat256mod
 
 " Plugins fzf
 nmap ff :FZF<CR>
+nmap fr :Rg<CR>
+nmap fl :Lines<CR>
 
 " Auto QuickFix when grep
 autocmd QuickFixCmdPost *grep* cwindow
