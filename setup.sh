@@ -135,21 +135,26 @@ create_file "$HOME/.vimrc_1" "$content" "replace"
 append_to "$HOME/.vimrc" 'source $HOME/.vimrc_1' 
 
 content=$(cat << 'EOS'
-" Plugins
-
 call plug#begin('~/.vim/plugged')
 
 Plug 'thinca/vim-quickrun'
 Plug 'vim-scripts/GrepHere'
 Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
-Plug 'maralla/completor.vim', { 'commit': 'abed3d3720d7186920f2e28d81e43749104e80bb' }
+" Plug 'maralla/completor.vim', { 'commit': 'abed3d3720d7186920f2e28d81e43749104e80bb' }
 Plug 'vim-scripts/wombat256.vim'
 Plug 'junegunn/fzf', { 'dir': '~/fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'posva/vim-vue'
 Plug 'ap/vim-css-color'
 Plug 'tpope/vim-fugitive'
+
+" Vim LSP
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prabirshrestha/asyncomplete-buffer.vim'
 
 call plug#end()
 EOS
@@ -161,10 +166,11 @@ content=$(cat << 'EOS'
 " Plugins lightline.vim
 set laststatus=2
 
-" Plugins completor
+" asynccomplete.vim
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
 " 256 Color settings
 set t_Co=256
