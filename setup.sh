@@ -395,3 +395,274 @@ content=$(cat << 'EOS'
 EOS
 )
 create_file "$HOME/.gitconfig" "$content"
+
+#################### NVIM settings ####################
+
+create_dir "$HOME/.config/nvim"
+
+content=$(cat << 'EOS'
+" Common settings
+set encoding=utf-8
+set number
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+set autoindent
+set incsearch
+set ignorecase
+set expandtab
+set ambiwidth=double
+set backspace=indent,eol,start
+set hlsearch
+set nobackup
+set nowritebackup
+set updatetime=300
+set signcolumn=yes
+
+call plug#begin('~/.config/nvim/plugged')
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.2' }
+
+" Filer
+Plug 'preservim/nerdtree'
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'nvim-tree/nvim-tree.lua'
+
+" Syntax
+Plug 'nvim-treesitter/nvim-treesitter'
+
+" Complement
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Themes
+Plug 'projekt0n/github-nvim-theme'
+Plug 'rebelot/kanagawa.nvim'
+
+" Status line
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+" Rails
+Plug 'tpope/vim-rails'
+
+" Rust
+Plug 'rust-lang/rust.vim'
+
+" Icons for airline
+call plug#end()
+
+" Find files using Telescope command-line sugar.
+nnoremap fff <cmd>Telescope find_files<cr>
+nnoremap ffg <cmd>Telescope live_grep<cr>
+
+" colorscheme github_dark_high_contrast
+autocmd VimEnter * colorscheme kanagawa-wave
+
+" Airline settings
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#branch#enabled = 1
+
+" NvimTree settings
+nmap tt :NvimTreeToggle<CR>
+
+" NERDTree settings
+let g:NERDTreeChDirMode=0
+
+" Load coc configuration
+source ~/.config//nvim/coc.vim
+
+" Load lua configuration
+luafile ~/.config/nvim/config.lua
+EOS
+)
+create_file "$HOME/.config/init.vim" "$content"
+
+content=$(cat << 'EOS'
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+nnoremap <silent> K :call ShowDocumentation()<CR>
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+nmap <leader>rn <Plug>(coc-rename)
+
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+nmap <leader>ac  <Plug>(coc-codeaction-cursor)
+nmap <leader>as  <Plug>(coc-codeaction-source)
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+nmap <silent> <leader>re <Plug>(coc-codeaction-refactor)
+xmap <silent> <leader>r  <Plug>(coc-codeaction-refactor-selected)
+nmap <silent> <leader>r  <Plug>(coc-codeaction-refactor-selected)
+
+nmap <leader>cl  <Plug>(coc-codelens-action)
+
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
+
+command! -nargs=0 Format :call CocActionAsync('format')
+
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+EOS
+)
+create_file "$HOME/.config/coc.vim" "$content"
+
+content=$(cat << 'EOS'
+{
+  "languageserver": {
+    "solargraph": {
+      "command": "solargraph",
+      "args": ["stdio"],
+      "filetypes": ["ruby"],
+      "rootPatterns": [".git", "Gemfile"],
+      "initializationOptions": {},
+      "settings": {
+        "solargraph.completion": true,
+        "solargraph.trace.server": "verbose",
+        "solargraph.useBundler": true,
+        "solargraph.diagnostics": true,
+        "solargraph.formatting": true,
+        "solargraph.logLevel": "info"
+      }
+    },
+    "godot":{
+      "host": "127.0.0.1",
+      "port": "6005",
+      "filetypes": ["gdscript"]
+    }
+  }
+}
+EOS
+)
+create_file "$HOME/.config/nvim/coc-settings.json" "$content"
+
+content=$(cat << 'EOS'
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+require("nvim-tree").setup({
+  update_root = false,
+  hijack_directories = {
+    enable = false,
+    auto_open = false,
+  }
+})
+
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false,
+  },
+}
+
+vim.g.nvim_tree_auto_change_cwd = 0
+EOS
+)
+create_file "$HOME/.config/nvim/config.lua" "$content"
+
+# Install vim-plug for NVIM
+# https://github.com/junegunn/vim-plug
+
+plug_nvim="$HOME/.local/share/nvim/site/autoload/plug.vim"
+if [ -e "$plug_nvim" ]; then
+  print_nt "$plug_nvim found"
+else
+  print_t "$plug_nvim should be downloaded"
+  curl -fLo "$plug_nvim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  if [ $? -eq 0 ]; then
+    print_d "$plug_nvim downloaded"
+  else
+    print_f "$plug_nvim not downloaded"
+  fi
+fi
+
+# Install GitHub copilot
+# https://docs.github.com/ja/copilot/getting-started-with-github-copilot?tool=vimneovim
+
+copilot=$HOME/.config/nvim/pack/github/start/copilot.vim
+if [ -e "$copilot" ]; then
+  print_nt "$copilot found"
+else
+  print_t "$copilot should be downloaded"
+  git clone https://github.com/github/copilot.vim $copilot
+  if [ $? -eq 0 ]; then
+    print_d "$copilot downloaded"
+  else
+    print_f "$copilot not downloaded"
+  fi
+fi
