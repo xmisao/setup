@@ -475,7 +475,7 @@ source ~/.config//nvim/coc.vim
 luafile ~/.config/nvim/config.lua
 EOS
 )
-create_file "$HOME/.config/init.vim" "$content"
+create_file "$HOME/.config/nvim/init.vim" "$content"
 
 content=$(cat << 'EOS'
 inoremap <silent><expr> <TAB>
@@ -580,7 +580,7 @@ nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 EOS
 )
-create_file "$HOME/.config/coc.vim" "$content"
+create_file "$HOME/.config/nvim/coc.vim" "$content"
 
 content=$(cat << 'EOS'
 {
